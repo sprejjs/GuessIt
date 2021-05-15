@@ -22,6 +22,7 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.NavHostFragment.findNavController
 import com.example.android.guesstheword.R
@@ -48,18 +49,18 @@ class GameFragment : Fragment() {
         )
 
         viewModel = ViewModelProvider(this).get(GameViewModel::class.java)
+        viewModel.score.observe(viewLifecycleOwner, Observer { newScore ->
+            updateScoreText(newScore)
+        })
 
         binding.correctButton.setOnClickListener {
             viewModel.onCorrect()
-            updateScoreText()
             updateWordText()
         }
         binding.skipButton.setOnClickListener {
             viewModel.onSkip()
-            updateScoreText()
             updateWordText()
         }
-        updateScoreText()
         updateWordText()
         return binding.root
 
@@ -69,8 +70,10 @@ class GameFragment : Fragment() {
      * Called when the game is finished
      */
     private fun gameFinished() {
-        val action = GameFragmentDirections.actionGameToScore(viewModel.score)
-        findNavController(this).navigate(action)
+        viewModel.score.value?.let {
+            val action = GameFragmentDirections.actionGameToScore(it)
+            findNavController(this).navigate(action)
+        }
     }
 
     /** Methods for updating the UI **/
@@ -80,7 +83,7 @@ class GameFragment : Fragment() {
 
     }
 
-    private fun updateScoreText() {
-        binding.scoreText.text = viewModel.score.toString()
+    private fun updateScoreText(score: Int) {
+        binding.scoreText.text = score.toString()
     }
 }
