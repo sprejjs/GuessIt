@@ -52,12 +52,8 @@ class GameFragment : Fragment() {
         viewModel = ViewModelProvider(this).get(GameViewModel::class.java)
 
         binding.gameViewModel = viewModel
-        viewModel.score.observe(viewLifecycleOwner, Observer { newScore ->
-            binding.scoreText.text = String.format(getText(R.string.score_format).toString(), newScore)
-        })
-        viewModel.word.observe(viewLifecycleOwner, Observer { newWord ->
-            binding.wordText.text = newWord
-        })
+        binding.lifecycleOwner = this
+
         viewModel.gameFinished.observe(viewLifecycleOwner, Observer { finished ->
             if (finished) {
                 gameFinished()
